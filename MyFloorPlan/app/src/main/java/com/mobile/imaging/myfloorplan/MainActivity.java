@@ -15,6 +15,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -125,9 +126,9 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         addContentView(openGLFrame, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-        magDataText0 = (TextView)findViewById(R.id.magData);
-        magDataText1 = (TextView)findViewById(R.id.textView);
-        magDataText2 = (TextView)findViewById(R.id.textView2);
+//        magDataText0 = (TextView)findViewById(R.id.magData);
+//        magDataText1 = (TextView)findViewById(R.id.textView);
+//        magDataText2 = (TextView)findViewById(R.id.textView2);
 
 
         rollingButton = (Button)findViewById(R.id.button);
@@ -142,12 +143,30 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
 
         mGLView.setZOrderMediaOverlay(true);
-        miscFrameLayout.bringToFront();
-        //openGLFrame.invalidate();
-        rollingButton.bringToFront();
-        magDataText0.bringToFront();
-        magDataText1.bringToFront();
-        magDataText2.bringToFront();
+//        miscFrameLayout.bringToFront();
+//        //openGLFrame.invalidate();
+//        rollingButton.bringToFront();
+//        magDataText0.bringToFront();
+//        magDataText1.bringToFront();
+//        magDataText2.bringToFront();
+//        rollingButton.setVisibility(View.VISIBLE);
+//        magDataText0.setVisibility(View.VISIBLE);
+//        magDataText1.setVisibility(View.VISIBLE);
+
+        //For displaying all textviews
+        LinearLayout miscLayout = new LinearLayout(this);
+        magDataText0 = new TextView(this);
+        magDataText1 = new TextView(this);
+        magDataText2 = new TextView(this);
+        magDataText0.setTextColor(Color.RED);
+        magDataText1.setTextColor(Color.GREEN);
+        magDataText2.setTextColor(Color.BLUE);
+
+        miscLayout.addView(magDataText0);
+        miscLayout.addView(magDataText1);
+        miscLayout.addView(magDataText2);
+        addContentView(miscLayout, new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         Camera.Parameters params = mCamera.getParameters();
         List<Camera.Size> sizes = params.getSupportedPictureSizes();
@@ -175,8 +194,6 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         mCamera.setParameters(parameters);
 
     }
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -342,6 +359,4 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         };
         thread.start();
     }
-
-
 }
