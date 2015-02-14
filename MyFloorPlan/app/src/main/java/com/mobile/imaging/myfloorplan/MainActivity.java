@@ -61,17 +61,8 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             {135,45,0},
             {45,0,45}
     };
-
-
-
-    private SeekBar XSeek;
-    private SeekBar YSeek;
-    private SeekBar ZSeek;
-    public int freqSeekValue;
-    public int alphaValue;
     public boolean isThreadRunning = false;
 
-    private Button rollingButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,62 +87,19 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         mPreview = new CameraPreview(this, mCamera);
         mCamera.setDisplayOrientation(90);
 
-        //mGLView.setBackgroundColor(Color.TRANSPARENT);
-        // preview.setBackgroundColor(Color.TRANSPARENT);
-        // preview.addView(mPreview);
-
         FrameLayout openGLFrame = new FrameLayout(this);
         openGLFrame.setBackgroundColor(Color.TRANSPARENT);
         openGLFrame.addView(mGLView);
 
-        /*
-        FrameLayout miscLayout = new FrameLayout(this);
-        miscLayout.setBackgroundColor(Color.TRANSPARENT);
-        rollingButton = new Button(this);
-        magDataText0 = new TextView(this);
-        magDataText1 = new TextView(this);
-        magDataText2 = new TextView(this);
-        miscLayout.addView(rollingButton);
-        miscLayout.addView(magDataText0);
-        miscLayout.addView(magDataText1);
-        miscLayout.addView(magDataText2);
-        */
-
         setContentView(R.layout.activity_main);
 
         FrameLayout cameraLayout = (FrameLayout)findViewById(R.id.camera_Layout);
-        FrameLayout miscFrameLayout = (FrameLayout)findViewById(R.id.misc_frame);
-
         cameraLayout.addView(mPreview);
         addContentView(openGLFrame, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-//        magDataText0 = (TextView)findViewById(R.id.magData);
-//        magDataText1 = (TextView)findViewById(R.id.textView);
-//        magDataText2 = (TextView)findViewById(R.id.textView2);
-
-
-        rollingButton = (Button)findViewById(R.id.button);
-        rollingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.e("GP","Rolling pressed");
-                startRolling();
-
-            }
-        });
-
 
         mGLView.setZOrderMediaOverlay(true);
-//        miscFrameLayout.bringToFront();
-//        //openGLFrame.invalidate();
-//        rollingButton.bringToFront();
-//        magDataText0.bringToFront();
-//        magDataText1.bringToFront();
-//        magDataText2.bringToFront();
-//        rollingButton.setVisibility(View.VISIBLE);
-//        magDataText0.setVisibility(View.VISIBLE);
-//        magDataText1.setVisibility(View.VISIBLE);
 
         //For displaying all textviews
         LinearLayout miscLayout = new LinearLayout(this);
