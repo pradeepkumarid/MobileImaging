@@ -27,7 +27,7 @@ y1=sind(angleset(1));
 %corners with a starting angle alpha 
 %---alpha=45;
 mindistance=100000;
-for alpha=0:5:360
+for alpha=0:0.5:360
 %parameters of line 1 generated from the point x1,y1 with angle alpha
 %respect to first ray
 lineparams=[-sind(angleset(1)-alpha) cosd(angleset(1)-alpha) y1*cosd(angleset(1)-alpha)-x1*sind(angleset(1)-alpha)];
@@ -59,6 +59,11 @@ v2(1)=y1;
     
 end    
 
+
+%To check output
+%twodfloorplan
+%[45 135 225 315]
+%pdepoly(finalpointset(1:4,1)',finalpointset(1:4,2))
 
 
 

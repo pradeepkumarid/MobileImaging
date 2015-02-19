@@ -4,5 +4,6 @@
     <string name="app_name">MyFloorPlan</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_floor_plan">FloorPlanActivity</string>
 
 </resources>

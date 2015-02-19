@@ -1,6 +1,7 @@
 package com.mobile.imaging.myfloorplan;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -67,11 +68,11 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
-
+        Log.d(TAG,"onCreate MainActivity");
         if (!checkCameraHardware(this))
             Log.e(TAG, "No Camera Support!!!!");
 
-        mGLView = new MyGLSurfaceView(this);
+
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -82,10 +83,13 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         }
 
 
-        // Create an instance of Camera
-        mCamera = getCameraInstance();
-        mPreview = new CameraPreview(this, mCamera);
-        mCamera.setDisplayOrientation(90);
+    }
+
+    public void initViews()
+    {
+
+        mGLView = new MyGLSurfaceView(this);
+        initCamera();
 
         FrameLayout openGLFrame = new FrameLayout(this);
         openGLFrame.setBackgroundColor(Color.TRANSPARENT);
@@ -116,31 +120,44 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         addContentView(miscLayout, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-        Camera.Parameters params = mCamera.getParameters();
-        List<Camera.Size> sizes = params.getSupportedPictureSizes();
-        Camera.Size mSize;
-        for (Camera.Size size : sizes) {
-            Log.i(TAG, "Available resolution: " + size.width + " " + size.height);
+
+
+    }
+    public void initCamera()
+    {
+        // Create an instance of Camera
+        Log.d(TAG,"initCamera MainActivity");
+        if(mCamera==null) {
+            mCamera = getCameraInstance();
+            mPreview = new CameraPreview(this, mCamera);
+            mCamera.setDisplayOrientation(90);
+            Camera.Parameters params = mCamera.getParameters();
+            List<Camera.Size> sizes = params.getSupportedPictureSizes();
+            Camera.Size mSize;
+            for (Camera.Size size : sizes) {
+                Log.i(TAG, "Available resolution: " + size.width + " " + size.height);
+            }
+
+            Display display = getWindowManager().getDefaultDisplay();
+            Point sizeDisplay = new Point();
+            display.getSize(sizeDisplay);
+
+            int screenwidth = sizeDisplay.x;
+            int screenheight = sizeDisplay.y;
+            Log.d(TAG, "Screen size : width " + screenwidth + " height = " + screenheight);
+
+            android.hardware.Camera.Parameters parameters = mCamera.getParameters();
+            android.hardware.Camera.Size size = parameters.getPictureSize();
+            int height = size.height;
+            int width = size.width;
+
+            Log.e(TAG, "Height = " + height + " WEIGHT = " + width);
+
+            parameters.setPictureSize(screenheight, screenwidth);
+            mCamera.setParameters(parameters);
         }
-
-        Display display = getWindowManager().getDefaultDisplay();
-        Point sizeDisplay = new Point();
-        display.getSize(sizeDisplay);
-
-        int screenwidth = sizeDisplay.x;
-        int screenheight = sizeDisplay.y;
-        Log.d(TAG, "Screen size : width "+screenwidth+" height = "+screenheight);
-
-        android.hardware.Camera.Parameters parameters = mCamera.getParameters();
-        android.hardware.Camera.Size size = parameters.getPictureSize();
-        int height = size.height;
-        int width = size.width;
-
-        Log.e(TAG,"Height = "+height+" WEIGHT = "+width);
-
-        parameters.setPictureSize(screenheight,screenwidth);
-        mCamera.setParameters(parameters);
-
+        else
+            Log.e(TAG,"mCamera is already initialized");
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -156,8 +173,14 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_render) {
+
+            setWallCoords();
+            //show a loading sign untill Wall Cords are set. Then proceed to FloorPlanActivity
+
+            Log.d(TAG,"menu item action_render clicked");
+            Intent intent = new Intent(this, FloorPlanActivity.class);
+            startActivity(intent);
             return true;
         }
 
@@ -191,6 +214,8 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(TAG,"onResume MainActivity");
+        initViews();
 
         // Create our Preview view and set it as the content of our activity.
         mGLView.onResume();
@@ -206,12 +231,15 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     @Override
     protected void onPause() {
         super.onPause();
+        Log.d(TAG,"onPause MainActivity");
         releaseCamera();
         mGLView.onPause();
     }
 
     private void releaseCamera() {
+        Log.d(TAG,"releaseCamera MainActivity");
         if (mCamera != null) {
+            Log.d(TAG,"mCamera is released");
             mCamera.release();        // release the camera for other applications
             mCamera = null;
         }
@@ -276,35 +304,49 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         magDataText2.setText("R:"+roll);
     }
 
-
-    public void startRolling()
+    public void setWallCoords()
     {
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                isThreadRunning = true;
-                try {
-                    Random r = new Random();
-                    int i1 = r.nextInt(6);
-                    int count = 0;
-                    Log.e("GP", "Random Number generated is" + i1);
-                    while(count<11) {
-                        MyGLRenderer.xAngle = (axes[i1][0] + 720*count/10)/3.6f;
-                        MyGLRenderer.yAngle = (axes[i1][1] + 720*count/10)/3.6f;
-                        MyGLRenderer.zAngle = (axes[i1][2] + 720*count/10)/3.6f;
-                        mGLView.requestRender();
-                        sleep(100);
-                        count++;
+        float[][] tempCords = { {0.7071f, 0.7071f} ,
+                                { -0.7071f,0.7071f},
+                                {-0.7071f,-0.7071f},
+                                {0.7071f,-0.7071f }
+                    };   //Get this from ray tracing algo implementation
 
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                finally {
-                    isThreadRunning = false;
-                }
-            }
-        };
-        thread.start();
+        int noOfWalls = 4;
+        float zHeight = 0.25f;
+
+        FloorCoordsGlobal.numOfWalls = noOfWalls;
+
+        //Conversion of corner points to wall coordinates.
+
+        for(int i=0;i<noOfWalls;i++)
+        {
+            int n = i+1;
+            if(n==noOfWalls)
+                n=0; // To make n as 0 when i is last point
+
+            FloorCoordsGlobal.wallCoords[i][0] = tempCords[i][0];   // 'i' th Wall's 1st x cord
+            FloorCoordsGlobal.wallCoords[i][1] = tempCords[i][1];   // 'i' th Wall's 1st y cord
+            FloorCoordsGlobal.wallCoords[i][2] = -zHeight;
+
+            FloorCoordsGlobal.wallCoords[i][3] = tempCords[n][0];   // 'i' th Wall's 2nd x cord
+            FloorCoordsGlobal.wallCoords[i][4] = tempCords[n][1];   // 'i' th Wall's 2nd y cord
+            FloorCoordsGlobal.wallCoords[i][5] = -zHeight;
+
+            FloorCoordsGlobal.wallCoords[i][6] = tempCords[n][0];   // 'i' th Wall's 3rd x cord
+            FloorCoordsGlobal.wallCoords[i][7] = tempCords[n][1];   // 'i' th Wall's 3rd y cord
+            FloorCoordsGlobal.wallCoords[i][8] = zHeight;
+
+            FloorCoordsGlobal.wallCoords[i][9] = tempCords[i][0];   // 'i' th Wall's 3rd x cord
+            FloorCoordsGlobal.wallCoords[i][10] = tempCords[i][1];   // 'i' th Wall's 3rd y cord
+            FloorCoordsGlobal.wallCoords[i][11] = zHeight;
+
+        }
+
+
+
+
     }
+
+
 }
