@@ -19,14 +19,21 @@ import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
 
 import java.util.List;
 import java.util.Random;
@@ -52,7 +59,11 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     TextView magDataText1;
     TextView magDataText2;
 
-    private GLSurfaceView mGLView;
+    private ArrayList<Float> azimuthAngles;
+    private int anglesCount;
+
+    private TableLayout tableLayout;
+
 
     private float[][] axes = new float[][]{
             {45,180,45},
@@ -72,7 +83,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         if (!checkCameraHardware(this))
             Log.e(TAG, "No Camera Support!!!!");
 
-
+        azimuthAngles = new ArrayList<Float>();
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -82,31 +93,50 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             Log.e(TAG, "No Magnetometer Support!!!!");
         }
 
+        anglesCount = 0;
 
+
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent e) {
+        if(e.getAction()==e.ACTION_DOWN) {
+
+            float angle = ((azimuth + 3.0f)*360.0f/6.0f);
+            Log.e(TAG, "Touch detected : captured Azimuth angle = " + angle);
+            azimuthAngles.add( angle ); //Use these angles for ray tracing and finding floor coordinates
+            Toast.makeText(getApplicationContext(),"Added No."+anglesCount+" angle= "+angle,Toast.LENGTH_SHORT);//toast didnt work
+            anglesCount++;
+            addTextContentOnScreen("Added No."+anglesCount+" angle= "+angle);
+
+        }
+        return true;
     }
 
     public void initViews()
     {
 
-        mGLView = new MyGLSurfaceView(this);
+
         initCamera();
 
-        FrameLayout openGLFrame = new FrameLayout(this);
-        openGLFrame.setBackgroundColor(Color.TRANSPARENT);
-        openGLFrame.addView(mGLView);
+        FrameLayout crossHairFrame = new FrameLayout(this);
+        crossHairFrame.setBackgroundColor(Color.TRANSPARENT);
+        ImageView crosshair = new ImageView(this);
+        crosshair.setImageResource(R.drawable.crosshair);
+        crossHairFrame.addView(crosshair);
 
         setContentView(R.layout.activity_main);
 
         FrameLayout cameraLayout = (FrameLayout)findViewById(R.id.camera_Layout);
         cameraLayout.addView(mPreview);
-        addContentView(openGLFrame, new ViewGroup.LayoutParams(
+        addContentView(crossHairFrame, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
 
-        mGLView.setZOrderMediaOverlay(true);
+
 
         //For displaying all textviews
-        LinearLayout miscLayout = new LinearLayout(this);
+        TableLayout miscLayout = new TableLayout(this);
         magDataText0 = new TextView(this);
         magDataText1 = new TextView(this);
         magDataText2 = new TextView(this);
@@ -114,12 +144,35 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         magDataText1.setTextColor(Color.GREEN);
         magDataText2.setTextColor(Color.BLUE);
 
-        miscLayout.addView(magDataText0);
-        miscLayout.addView(magDataText1);
-        miscLayout.addView(magDataText2);
-        addContentView(miscLayout, new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
+
+
+        TableLayout.LayoutParams tableParams = new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT);
+        TableRow.LayoutParams rowParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT);
+
+        tableLayout = new TableLayout(this);
+        tableLayout.setLayoutParams(tableParams);
+
+        TableRow tableRow0 = new TableRow(this);
+        tableRow0.setLayoutParams(tableParams);
+        magDataText0.setLayoutParams(rowParams);
+        tableRow0.addView(magDataText0);
+        tableLayout.addView(tableRow0, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+
+        TableRow tableRow1 = new TableRow(this);
+        tableRow1.setLayoutParams(tableParams);
+        magDataText1.setLayoutParams(rowParams);
+        tableRow1.addView(magDataText1);
+        tableLayout.addView(tableRow1, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+
+        TableRow tableRow2 = new TableRow(this);
+        tableRow2.setLayoutParams(tableParams);
+        magDataText2.setLayoutParams(rowParams);
+        tableRow2.addView(magDataText2);
+        tableLayout.addView(tableRow2, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+
+        addContentView(tableLayout, new ViewGroup.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
 
 
     }
@@ -218,7 +271,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         initViews();
 
         // Create our Preview view and set it as the content of our activity.
-        mGLView.onResume();
+
 
 
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
@@ -231,9 +284,8 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d(TAG,"onPause MainActivity");
+        Log.d(TAG, "onPause MainActivity");
         releaseCamera();
-        mGLView.onPause();
     }
 
     private void releaseCamera() {
@@ -348,5 +400,21 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
     }
 
+    public void addTextContentOnScreen(String text)
+    {
+
+        TableLayout.LayoutParams tableParams = new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT);
+        TableRow.LayoutParams rowParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT);
+
+        TableRow tableRow0 = new TableRow(this);
+        tableRow0.setLayoutParams(tableParams);
+
+        TextView  tv = new TextView(this);
+        tv.setLayoutParams(rowParams);
+        tv.setTextColor(Color.GREEN);
+        tv.setText(text);
+        tableRow0.addView(tv);
+        tableLayout.addView(tableRow0, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+    }
 
 }
