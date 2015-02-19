@@ -59,8 +59,8 @@ public class FloorGLSurfaceView  extends GLSurfaceView {
                         dy = dy * -1 ;
                     } */
 
-                    mRenderer.yAngle += (dx) * TOUCH_SCALE_FACTOR;  // = 180.0f / 320
-                    mRenderer.xAngle += (dy) * TOUCH_SCALE_FACTOR;
+                    mRenderer.zAngle -= (dx) * TOUCH_SCALE_FACTOR;  // = 180.0f / 320
+                    mRenderer.xAngle -= (dy) * TOUCH_SCALE_FACTOR;
                     requestRender();
             }
 

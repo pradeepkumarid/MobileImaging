@@ -358,13 +358,25 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
     public void setWallCoords()
     {
+        //For temp - 6 walls
+        float[][] tempCords = { {0.5f, 1.0f} ,
+                { -0.5f,1.0f},
+                {-0.5f,-1.0f},
+                {1.0f,-1.0f },
+                {1.0f,0.5f },
+                {0.5f,0.5f }
+        };   //Get this from ray tracing algo implementation
+        int noOfWalls = 6;
+
+        /*
+        //FOr temp - 4 walls
         float[][] tempCords = { {0.7071f, 0.7071f} ,
                                 { -0.7071f,0.7071f},
                                 {-0.7071f,-0.7071f},
                                 {0.7071f,-0.7071f }
                     };   //Get this from ray tracing algo implementation
 
-        int noOfWalls = 4;
+        int noOfWalls = 4; */
         float zHeight = 0.25f;
 
         FloorCoordsGlobal.numOfWalls = noOfWalls;
