@@ -122,7 +122,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         FrameLayout crossHairFrame = new FrameLayout(this);
         crossHairFrame.setBackgroundColor(Color.TRANSPARENT);
         ImageView crosshair = new ImageView(this);
-        crosshair.setImageResource(R.drawable.crosshair);
+        crosshair.setImageResource(R.drawable.target);
         crossHairFrame.addView(crosshair);
 
         setContentView(R.layout.activity_main);
