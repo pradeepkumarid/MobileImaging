@@ -38,6 +38,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
+import static java.lang.StrictMath.cos;
+import static java.util.Arrays.sort;
+
 
 public class MainActivity extends ActionBarActivity implements SensorEventListener {
 
@@ -231,7 +236,9 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             setWallCoords();
             //show a loading sign untill Wall Cords are set. Then proceed to FloorPlanActivity
 
+
             Log.d(TAG,"menu item action_render clicked");
+
             Intent intent = new Intent(this, FloorPlanActivity.class);
             startActivity(intent);
             return true;
@@ -358,15 +365,11 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
     public void setWallCoords()
     {
+
         //For temp - 6 walls
-        float[][] tempCords = { {0.5f, 1.0f} ,
-                { -0.5f,1.0f},
-                {-0.5f,-1.0f},
-                {1.0f,-1.0f },
-                {1.0f,0.5f },
-                {0.5f,0.5f }
-        };   //Get this from ray tracing algo implementation
-        int noOfWalls = 6;
+        float[][] tempCords = coordinates();
+           //Get this from ray tracing algo implementation
+        int noOfWalls = anglesCount;
 
         /*
         //FOr temp - 4 walls
@@ -429,4 +432,83 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         tableLayout.addView(tableRow0, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
     }
 
+    private float[][] coordinates(){
+
+        float[] angles=new float[10];
+        int  length;
+        float mindistance=10000,distance1=0,distance2=0,total=0,norm=0,minangle=0;
+        float x1=0,y1=0,xinter=0,yinter=0,det=0;
+        float lineparams[]=new float[5],line1params[]=new float[3],line2params[]=new float[3],v1[]=new float[10];
+        float v2[]=new float[10],intersection[]=new float[2],test[][]=new float[10][2],finalpointset[][]=new float[10][2];
+
+        for(int i=0;i<azimuthAngles.size();i++)
+            angles[i]=azimuthAngles.get(i);
+        sort(angles, 0, 4);
+        angles[anglesCount]=angles[0];
+        length=anglesCount+1;
+        x1= (float) cos(getangleinradian(angles[0]));
+        y1= (float) sin(getangleinradian(angles[0]));
+        for(int alpha=0;alpha<=360;alpha+=1) {
+            lineparams[0] = (float) (-1 * sin(getangleinradian(angles[0] - alpha)));
+            lineparams[1] = (float) cos(getangleinradian(angles[0] - alpha));
+            lineparams[2] = (float) (y1 * cos(getangleinradian(angles[0] - alpha)) - x1 * sin(getangleinradian(angles[0] - alpha)));
+
+            line1params[0] = lineparams[0];
+            line1params[1] = lineparams[1];
+            line1params[2] = lineparams[2];
+
+            v1[0] = x1;
+            v2[0] = y1;
+
+            for (int i = 1; i < length; i++) {
+                line2params[0] = (float) (-1 * sin(getangleinradian(angles[i])));
+                line2params[1] = (float) cos(getangleinradian(angles[i]));
+                line2params[2] = 0;
+
+                det = (line1params[0] * line2params[1]) - (line1params[1] * line2params[0]);
+
+                xinter = ((line2params[1] * line1params[2]) - (line1params[1] * line2params[2])) / det;
+                yinter = ((line1params[0] * line2params[2]) - (line2params[0] * line1params[2])) / det;
+
+                lineparams[0] = line1params[1];
+                lineparams[1] = -1 * line1params[0];
+                lineparams[2] = (-1 * yinter * line1params[0]) + (xinter * line1params[1]);
+
+                line1params[0] = lineparams[0];
+                line1params[1] = lineparams[1];
+                line1params[2] = lineparams[2];
+
+                v1[i] = xinter;
+                v2[i] = yinter;
+
+            }
+
+            for (int j = 0; j < length; j++) {
+                test[j][0] = v1[j];
+                test[j][1] = v2[j];
+                //Log.e("Error","V1 V2"+v1[j]+" "+v2[j]);
+            }
+
+            distance1 = (float) ((test[0][0] - test[(length - 1)][0]) * (test[0][0] - test[(length - 1)][0]));
+            distance2 = (float) ((test[0][1] - test[(length - 1)][1]) * (test[0][1] - test[(length - 1)][1]));
+            total = distance1 + distance2;
+            norm = (float) sqrt(total);
+            if (mindistance > norm) {
+                mindistance = norm;
+                minangle = alpha;
+                for (int j = 0; j < length; j++) {
+                    finalpointset[j][0] = test[j][0];
+                    finalpointset[j][1] = test[j][1];
+                }
+
+
+            }
+        }
+        return finalpointset;
+    }
+    private float getangleinradian(float angle){
+
+        float x= (float) (angle*Math.PI/180);
+        return x;
+    }
 }
