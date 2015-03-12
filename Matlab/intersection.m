@@ -6,6 +6,7 @@ intersectpoints=zeros(2,1);
 A=[lineparams1(1) lineparams1(2);lineparams2(1) lineparams2(2)];
 b=[lineparams1(3);lineparams2(3)];
 intersectpoints=inv(A)*b;
+Deter = det(A)
 xout=intersectpoints(1);
 yout=intersectpoints(2);
 end

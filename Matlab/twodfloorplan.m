@@ -27,10 +27,12 @@ y1=sind(angleset(1));
 %corners with a starting angle alpha 
 %---alpha=45;
 mindistance=100000;
+
 for alpha=0:0.5:360
+
 %parameters of line 1 generated from the point x1,y1 with angle alpha
 %respect to first ray
-lineparams=[-sind(angleset(1)-alpha) cosd(angleset(1)-alpha) y1*cosd(angleset(1)-alpha)-x1*sind(angleset(1)-alpha)];
+lineparams=[-sind(angleset(1)-alpha) cosd(angleset(1)-alpha) y1*cosd(angleset(1)-alpha)-x1*sind(angleset(1)-alpha)]
 %compute intersection function
 line1params=lineparams;%initialising line1params
 %initialise x and y coordinates of corners with zeros
@@ -41,10 +43,10 @@ v1(1)=x1;
 v2(1)=y1;
     for i=2:N
         line2params=[-sind(angleset(i)) cosd(angleset(i)) 0];
-        [xinter,yinter]=intersection(line1params,line2params);
+        [xinter,yinter]=intersection(line1params,line2params)
         %slope=-line1params(1)/line1params(2);d
         %yaxisinter=yinter+(1/slope)*xinter;
-        line1params=[line1params(2) -line1params(1) -yinter*line1params(1)+xinter*line1params(2)];
+        line1params=[line1params(2) -line1params(1) -yinter*line1params(1)+xinter*line1params(2)]
         v1(i)=xinter;
         v2(i)=yinter;   
     end

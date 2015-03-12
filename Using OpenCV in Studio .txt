@@ -1,0 +1,21 @@
+Works : 
+http://blog.hig.no/gtl/2014/08/28/opencv-and-android-studio/
+
+
+The below steps for using Android OpenCV sdk in Android Studio.
+
+Download latest OpenCV sdk for Android from OpenCV.org and decompress the zip file.
+Import OpenCV to Android Studio, From File -> Import Module, choose sdk/java folder in the unzipped opencv archive.
+Update build.gradle under imported OpenCV module to update 4 fields to match your project build.gradle a) compileSdkVersion b) buildToolsVersion c) minSdkVersion and 4) targetSdkVersion.
+Add module dependency by Application -> Module Settings, and select the Dependencies tab. Click + icon at bottom, choose Module Dependency and select the imported OpenCV module.
+Copy libs folder under sdk/native to Android Studio under app/src/main.
+In Android Studio, rename the copied libs directory to jniLibs and we are done.
+Step (6) is since Android studio expects native libs in app/src/main/jniLibs instead of older libs folder. For those new to Android OpenCV, don't miss below steps
+
+include static{ System.loadLibrary("opencv_java"); }
+For step(5), if you ignore any platform libs like x86, make sure your device/emulator is not on that platform.
+OpenCV written is in C/C++. Java wrappers are
+
+Android OpenCV SDK - OpenCV.org maintained Android Java wrapper. I suggest this one.
+OpenCV Java - OpenCV.org maintained auto generated desktop Java wrapper.
+JavaCV - Popular Java wrapper maintained by independent developer(s). Not Android specific. This library might get out of sync with OpenCV newer versions.
