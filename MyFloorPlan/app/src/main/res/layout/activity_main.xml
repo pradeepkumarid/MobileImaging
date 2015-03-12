@@ -12,7 +12,43 @@
         android:id="@+id/camera_Layout"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true" >
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Next"
+            android:id="@+id/change"
+            android:textSize="5mm"
+            android:layout_alignTop="@+id/doors"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:textColor="#FF0000"
+            android:layout_gravity="right|bottom" />
+    </FrameLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Corners"
+        android:id="@+id/corners"
+        android:textSize="5mm"
+        android:layout_alignTop="@+id/doors"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textColor="#FF0000" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Doors"
+        android:id="@+id/doors"
+        android:textSize="5mm"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="#FF0000" />
 
 </RelativeLayout>
