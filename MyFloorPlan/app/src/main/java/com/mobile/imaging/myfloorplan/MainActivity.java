@@ -109,13 +109,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         if (!checkCameraHardware(this))
             Log.e(TAG, "No Camera Support!!!!");
 
-        changeroom= (Button) findViewById(R.id.change);
-        door= (Button) findViewById(R.id.doors);
-        corner= (Button) findViewById(R.id.corners);
 
-        door.setOnClickListener(door_list);
-        corner.setOnClickListener(corn_list);
-        changeroom.setOnClickListener(room_list);
 
         azimuthAngles = new ArrayList<Float>();
 
@@ -143,7 +137,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             azimuthAngles.add( angle ); //Use these angles for ray tracing and finding floor coordinates
             Toast.makeText(getApplicationContext(),"Added No."+anglesCount+" angle= "+angle,Toast.LENGTH_SHORT);//toast didnt work
             anglesCount++;
-            //addTextContentOnScreen("Added No."+anglesCount+" angle= "+angle);
+            addTextContentOnScreen("Added No."+anglesCount+" angle= "+angle);
             //coordinates();
             //counter=counter+1;
          //   i=i+1;
@@ -174,7 +168,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                 //  counter=counter+1;
                 //    azimuthAngles.clear();
                 //    doorcount=1;
-                float[][]temp12=new float[10][10];
+                float[][]temp12; //=new float[10][10];
                 temp12=coordinates();
                 getdoorcoord(temp12);
                 if(counter>1){
@@ -327,6 +321,14 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
         setContentView(R.layout.activity_main);
 
+        changeroom= (Button) findViewById(R.id.change);
+        door= (Button) findViewById(R.id.doors);
+        corner= (Button) findViewById(R.id.corners);
+
+        door.setOnClickListener(door_list);
+        corner.setOnClickListener(corn_list);
+        changeroom.setOnClickListener(room_list);
+
         FrameLayout cameraLayout = (FrameLayout)findViewById(R.id.camera_Layout);
         cameraLayout.addView(mPreview);
         addContentView(crossHairFrame, new ViewGroup.LayoutParams(
@@ -474,8 +476,6 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
         // Create our Preview view and set it as the content of our activity.
 
-
-
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
         mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
 
@@ -587,27 +587,23 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             if(n==noOfWalls)
                 n=0; // To make n as 0 when i is last point
 
-            FloorCoordsGlobal.wallCoords[counter][i][0] = tempCords[i][0];   // 'i' th Wall's 1st x cord
-            FloorCoordsGlobal.wallCoords[counter][i][1] = tempCords[i][1];   // 'i' th Wall's 1st y cord
-            FloorCoordsGlobal.wallCoords[counter][i][2] = -zHeight;
+            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][0] = tempCords[i][0];   // 'i' th Wall's 1st x cord
+            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][1] = tempCords[i][1];   // 'i' th Wall's 1st y cord
+            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][2] = -zHeight;
 
-            FloorCoordsGlobal.wallCoords[counter][i][3] = tempCords[n][0];   // 'i' th Wall's 2nd x cord
-            FloorCoordsGlobal.wallCoords[counter][i][4] = tempCords[n][1];   // 'i' th Wall's 2nd y cord
-            FloorCoordsGlobal.wallCoords[counter][i][5] = -zHeight;
+            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][3] = tempCords[n][0];   // 'i' th Wall's 2nd x cord
+            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][4] = tempCords[n][1];   // 'i' th Wall's 2nd y cord
+            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][5] = -zHeight;
 
-            FloorCoordsGlobal.wallCoords[counter][i][6] = tempCords[n][0];   // 'i' th Wall's 3rd x cord
-            FloorCoordsGlobal.wallCoords[counter][i][7] = tempCords[n][1];   // 'i' th Wall's 3rd y cord
-            FloorCoordsGlobal.wallCoords[counter][i][8] = zHeight;
+            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][6] = tempCords[n][0];   // 'i' th Wall's 3rd x cord
+            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][7] = tempCords[n][1];   // 'i' th Wall's 3rd y cord
+            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][8] = zHeight;
 
-            FloorCoordsGlobal.wallCoords[counter][i][9] = tempCords[i][0];   // 'i' th Wall's 3rd x cord
-            FloorCoordsGlobal.wallCoords[counter][i][10] = tempCords[i][1];   // 'i' th Wall's 3rd y cord
-            FloorCoordsGlobal.wallCoords[counter][i][11] = zHeight;
+            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][9] = tempCords[i][0];   // 'i' th Wall's 3rd x cord
+            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][10] = tempCords[i][1];   // 'i' th Wall's 3rd y cord
+            FloorCoordsGlobal.wallCoords[counter-1+i][11] = zHeight;
 
         }
-
-
-
-
     }
 
     public void addTextContentOnScreen(String text)
