@@ -89,6 +89,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     private float[] angles=new float[5];
     int doorcount=0;
     int[] temp=new  int[10];
+    int prevWallCount = 0;
 
 
     private float[][] axes = new float[][]{
@@ -109,7 +110,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         if (!checkCameraHardware(this))
             Log.e(TAG, "No Camera Support!!!!");
 
-
+        FloorCoordsGlobal.numOfWalls = 0;
 
         azimuthAngles = new ArrayList<Float>();
 
@@ -135,9 +136,9 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
             Log.e(TAG, "Touch detected : captured Azimuth angle = " + angle);
             azimuthAngles.add( angle ); //Use these angles for ray tracing and finding floor coordinates
-            Toast.makeText(getApplicationContext(),"Added No."+anglesCount+" angle= "+angle,Toast.LENGTH_SHORT);//toast didnt work
+            //Toast.makeText(getApplicationContext(),"Added No."+anglesCount+" angle= "+angle,Toast.LENGTH_SHORT);//toast didnt work
             anglesCount++;
-            addTextContentOnScreen("Added No."+anglesCount+" angle= "+angle);
+            addTextContentOnScreen("Corner  No."+anglesCount+" angle= "+angle);
             //coordinates();
             //counter=counter+1;
          //   i=i+1;
@@ -149,16 +150,21 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
         @Override
         public void onClick(View v) {
+
             float angle = ((azimuth + 3.0f) * 360.0f / 6.0f);
 
             Log.e(TAG, "Touch detected : captured Azimuth angle = " + angle);
             temp_door_angle[doorcount] = angle;
             //azimuthAngles.add( angle ); //Use these angles for ray tracing and finding floor coordinates
-            Toast.makeText(getApplicationContext(), "Added No." + doorcount + " angle= " + angle, Toast.LENGTH_SHORT);//toast didnt work
-            doorcount++;
+            //Toast.makeText(getApplicationContext(), "Added No." + doorcount + " angle= " + angle, Toast.LENGTH_SHORT);//toast didnt work
+
 
             temp[doorcount] = anglesCount;
+            doorcount++;
+            Log.e("GP","doorcount"+doorcount);
+            Log.e("GP","anglecount"+anglesCount);
 
+            addTextContentOnScreen("Door No."+doorcount+" angle= "+angle);
         }
         };
 
@@ -175,6 +181,28 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                     update();
                     //call the jama function
                 }
+
+                for(int i=0;i<anglesCount;i++){
+                    switch (counter) {
+                        case 1:
+                            Log.e("tag", "room\t" + counter + " coords" + "x " + room1_cord[i][0] + "\ty " + room1_cord[i][1]);
+                            break;
+                        case 2:
+                            Log.e("tag", "room\t" + counter + " coords" + "x " + room2_cord[i][0] + "\ty " + room2_cord[i][1]);
+                            break;
+
+                    }
+                }
+                for (int i=0;i<doorcount;i++){
+                    switch(counter){
+                        case 1:
+                            Log.e("tag","door coords"+counter+"\tx "+door1_cord[i][0]+"\ty "+door1_cord[i][1]);
+                            break;
+                        case 2:
+                            Log.e("tag","door coords"+counter+"\tx "+door2_cord[i][0]+"\ty "+door2_cord[i][1]);
+                            break;
+                    }
+                }
                 switch (counter){
                     case 1:
                         setWallCoords(room1_cord);
@@ -182,20 +210,22 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                     case 2:
                         setWallCoords(room2_cord);
                         break;
-                    case 3:
+                    /*case 3:
                         setWallCoords(room3_cord);
                         break;
                     case 4:
                         setWallCoords(room4_cord);
-                        break;
+                        break;*/
 
 
                 }
-
-                counter=counter+1;
-                //getting the door co-ordinates thing
-                doorcount=1;
-                anglesCount=1;
+                addTextContentOnScreen("Room\t"+counter+"\t completed");
+                //Log.e("GP","Room\t"+counter+"\t completed");
+                counter++;
+                //reinistilize
+                doorcount=0;
+                anglesCount=0;
+                azimuthAngles.clear();
 
             }
         };
@@ -221,29 +251,56 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
                 break;
 
         }*/
-        double[] y={door1_cord[0][0],door1_cord[0][1],door1_cord[1][0],door1_cord[1][1],room1_cord[0][0],
-                room1_cord[0][1],room1_cord[1][0],room1_cord[1][1]};
-        double[][] mat={{door2_cord[0][0],-door2_cord[0][1],1,0},
-                        {door2_cord[0][1],door2_cord[0][0],0,1},
-                        {door2_cord[1][0],-door2_cord[1][1],1,0},
-                        {door2_cord[0][1],door2_cord[1][0],0,1},
+        double[] y={room1_cord[0][0],
+                room1_cord[0][1],door1_cord[0][0],door1_cord[0][1],door1_cord[1][0],door1_cord[1][1],door1_cord[2][0],door1_cord[2][1],
+                door1_cord[3][0],door1_cord[3][1],door1_cord[4][0],door1_cord[4][1],room1_cord[1][0],room1_cord[1][1]};
+        double[][] mat={
                         {room2_cord[0][0],-room2_cord[0][1],1,0},
                         {room2_cord[0][1],room2_cord[0][0],0,1},
+
+                        {door2_cord[0][0],-door2_cord[0][1],1,0},
+                        {door2_cord[0][1],door2_cord[0][0],0,1},
+
+                        {door2_cord[1][0],-door2_cord[1][1],1,0},
+                        {door2_cord[1][1],door2_cord[1][0],0,1},
+
+                        {door2_cord[2][0],-door2_cord[2][1],1,0},
+                        {door2_cord[2][1],door2_cord[2][0],0,1},
+
+                        {door2_cord[3][0],-door2_cord[3][1],1,0},
+                        {door2_cord[3][1],door2_cord[3][0],0,1},
+
+
+
+                        {door2_cord[4][0],-door2_cord[4][1],1,0},
+                        {door2_cord[4][1],door2_cord[4][0],0,1},
+
                         {room2_cord[1][0],-room2_cord[1][1],1,0},
                         {room2_cord[1][1],room2_cord[1][0],0,1},
         };
 
-        Matrix A=new Matrix(mat);
-        Matrix b=new Matrix(y,8);
+        Matrix A;
+        A=new Matrix(mat);
+        Matrix b=new Matrix(y,14);
         Matrix answer=A.solve(b);
-        double[][] zoom={{answer.get(0,0),-answer.get(1,0)},{answer.get(1,0),answer.get(0,0)}};
+        double[][] zoom=new double[2][2];
+        zoom[0][0]=answer.get(0,0);
+        zoom[0][1]=-answer.get(1,0);
+        zoom[1][0]=answer.get(1,0);
+        zoom[1][1]=answer.get(0,0);
+                //{{,},{answer.get(1,0),answer.get(0,0)}};
         Matrix zoom1=new Matrix(zoom);
-        double[] trans={answer.get(2,0),answer.get(3,0)};
+        double[] trans=new double[2];
+        trans[0]=answer.get(2,0);
+        trans[1]=answer.get(3,0);
+                //{answer.get(2,0),answer.get(3,0)};
         Matrix trans1=new Matrix(trans,2);
         for(int i=0;i<anglesCount;i++){
-            double[]temp_mmat={room2_cord[i][0],room2_cord[i][1]};
+            double[]temp_mmat=new double[2];
+            temp_mmat[0]=room2_cord[i][0];
+            temp_mmat[1]=room2_cord[i][1];        //{room2_cord[i][0],room2_cord[i][1]};
             Matrix temp=new Matrix(temp_mmat,2);
-            Matrix temp1=temp.times(zoom1).plus(trans1);
+            Matrix temp1=zoom1.times(temp).plus(trans1);
             room2_cord[i][0]=(float)temp1.get(0,0);
             room2_cord[i][1]=(float)temp1.get(1,0);
         }
@@ -252,32 +309,85 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         Log.e("tag","matrix3\t"+answer.get(2,0));
         Log.e("tag","matrix4\t"+answer.get(3,0));
         for(int i=0;i<doorcount;i++){
-            double[]temp_mmat={door2_cord[i][0],door2_cord[i][1]};
+            double[]temp_mmat=new double[2];
+            temp_mmat[0]=door2_cord[i][0];
+            temp_mmat[1]=door2_cord[i][1];                //{door2_cord[i][0],door2_cord[i][1]};
             Matrix temp=new Matrix(temp_mmat,2);
-            Matrix temp1=temp.times(zoom1).plus(trans1);
+            Matrix temp1=zoom1.times(temp).plus(trans1);
             door2_cord[i][0]=(float)temp1.get(0,0);
             door2_cord[i][1]=(float)temp1.get(1,0);
 
         }
+//        double[][] Wall1={{2,2},{2,1},{2,-1},{2,-2}};
+//        double[][] Wall2={{4,0},{3,1},{1,3},{0,4}};
+//        double[] y={Wall1[0][0],Wall1[0][1],Wall1[1][0],Wall1[1][1],Wall1[2][0],Wall1[2][1],Wall1[3][0],Wall1[3][1]};
+//        Log.e("tag", "Wall1\t"+Wall1[1][0]+" "+Wall1[1][1]);
+//        double[][] mat={{Wall2[0][0],-Wall2[0][1],1,0},
+//                {Wall2[0][1],Wall2[0][0],0,1},
+//                {Wall2[1][0],-Wall2[1][1],1,0},
+//                {Wall2[1][1],Wall2[1][0],0,1},
+//                {Wall2[2][0],-Wall2[2][1],1,0},
+//                {Wall2[2][1],Wall2[2][0],0,1},
+//                {Wall2[3][0],-Wall2[3][1],1,0},
+//                {Wall2[3][1],Wall2[3][0],0,1},};
+
+/*        double[] y={2,-2,2,2,2,1,2,-1};
+
+        double[][] mat={
+
+                        {0,-4,1,0},
+                        {4,0,0,1},
+                        {4,0,1,0},
+                        {0,4,0,1},
+                        {3,-1,1,0},
+                        {1,3,0,1},
+                        {1,-3,1,0},
+                        {3,1,0,1},
+
+        };*/
+//        Matrix A=new Matrix(mat);
+//        Matrix b=new Matrix(y,8);
+//        Matrix answer=A.solve(b);
+//        Log.e("tag","matrix1\t"+answer.get(0,0));
+//        Log.e("tag","matrix2\t"+answer.get(1,0));
+//        Log.e("tag","matrix3\t"+answer.get(2,0));
+//        Log.e("tag","matrix4\t"+answer.get(3,0));
+//        Matrix zoom;
+//        Matrix trans;
+
     }
         private void getdoorcoord(float[][] temp12){
-            for (int i=0;i<=doorcount;i=i+2){
-                float theta1=azimuthAngles.get(temp[i]-1);
-                float theta2=azimuthAngles.get(temp[i]);
+            for (int i=0;i<doorcount;i=i+5){
+                int index=temp[i];
+                float theta1=azimuthAngles.get(index-1);
+                float theta2=azimuthAngles.get(index);
                 float thetad1=temp_door_angle[i];
                 float thetad2=temp_door_angle[i+1];
+                float thetad3=temp_door_angle[i+2];
+                float thetad4=temp_door_angle[i+3];
+                float thetad5=temp_door_angle[i+4];
                 thetad1=thetad1-theta1;
                 thetad2=thetad2-theta1;
+                thetad3=thetad3-theta1;
+                thetad4=thetad4-theta1;
+                thetad5=thetad5-theta1;
                 theta2=theta2-theta1;
                 //int j=temp[i];
-                float x2=temp12[temp[i]][0];
-                float y2=temp12[temp[i]][1];
-                float x1=temp12[temp[i]-1][0];
-                float y1=temp12[temp[i]-1][1];
+                float x1=temp12[index-1][0];
+                float y1=temp12[index-1][1];
+                float x2=temp12[index][0];
+                float y2=temp12[index][1];
                 doors[i][0]=thetad1*(x2-x1)/theta2+x1;
                 doors[i][1]=thetad1*(y2-y1)/theta2+y1;
                 doors[i+1][0]=thetad2*(x2-x1)/theta2+x1;
                 doors[i+1][1]=thetad2*(y2-y1)/theta2+y1;
+                doors[i+2][0]=thetad3*(x2-x1)/theta2+x1;
+                doors[i+2][1]=thetad3*(y2-y1)/theta2+y1;
+                doors[i+3][0]=thetad4*(x2-x1)/theta2+x1;
+                doors[i+3][1]=thetad4*(y2-y1)/theta2+y1;
+                doors[i+4][0]=thetad5*(x2-x1)/theta2+x1;
+                doors[i+4][1]=thetad5*(y2-y1)/theta2+y1;
+
             }
             switch (counter){
                 case 1:
@@ -435,7 +545,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
 
             Log.d(TAG,"menu item action_render clicked");
-
+          Log.d("GP","Floor numOfWalls "+ FloorCoordsGlobal.numOfWalls);
             Intent intent = new Intent(this, FloorPlanActivity.class);
             startActivity(intent);
             return true;
@@ -577,7 +687,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         int noOfWalls = 4; */
         float zHeight = 0.25f;
 
-        FloorCoordsGlobal.numOfWalls = noOfWalls;
+        FloorCoordsGlobal.numOfWalls += noOfWalls;
 
         //Conversion of corner points to wall coordinates.
 
@@ -587,23 +697,33 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             if(n==noOfWalls)
                 n=0; // To make n as 0 when i is last point
 
-            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][0] = tempCords[i][0];   // 'i' th Wall's 1st x cord
-            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][1] = tempCords[i][1];   // 'i' th Wall's 1st y cord
-            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][2] = -zHeight;
+            FloorCoordsGlobal.wallCoords[prevWallCount+i][0] = tempCords[i][0];   // 'i' th Wall's 1st x cord
+            FloorCoordsGlobal.wallCoords[prevWallCount+i][1] = tempCords[i][1];   // 'i' th Wall's 1st y cord
+            FloorCoordsGlobal.wallCoords[prevWallCount+i][2] = -zHeight;
+            Log.e("GP","[" +(prevWallCount+i)+" ]["+0+" = "+FloorCoordsGlobal.wallCoords[prevWallCount+i][0]+" [" +(prevWallCount+i)+" ]["+1+" = "+FloorCoordsGlobal.wallCoords[prevWallCount+i][1]);
+            //Log.d("GP","[" +(12*(counter-1)+i)+" ]["+1+" = "+FloorCoordsGlobal.wallCoords[12*(counter-1)+i][1]);
 
-            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][3] = tempCords[n][0];   // 'i' th Wall's 2nd x cord
-            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][4] = tempCords[n][1];   // 'i' th Wall's 2nd y cord
-            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][5] = -zHeight;
 
-            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][6] = tempCords[n][0];   // 'i' th Wall's 3rd x cord
-            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][7] = tempCords[n][1];   // 'i' th Wall's 3rd y cord
-            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][8] = zHeight;
+            FloorCoordsGlobal.wallCoords[prevWallCount+i][3] = tempCords[n][0];   // 'i' th Wall's 2nd x cord
+            FloorCoordsGlobal.wallCoords[prevWallCount+i][4] = tempCords[n][1];   // 'i' th Wall's 2nd y cord
+            FloorCoordsGlobal.wallCoords[prevWallCount+i][5] = -zHeight;
+            Log.e("GP","[" +(prevWallCount+i)+" ]["+3+" = "+FloorCoordsGlobal.wallCoords[prevWallCount+i][3]+"[" +(prevWallCount+i)+" ]["+4+" = "+FloorCoordsGlobal.wallCoords[prevWallCount+i][4]);
+            //Log.d("GP","[" +(12*(counter-1)+i)+" ]["+4+" = "+FloorCoordsGlobal.wallCoords[12*(counter-1)+i][4]);
 
-            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][9] = tempCords[i][0];   // 'i' th Wall's 3rd x cord
-            FloorCoordsGlobal.wallCoords[12*(counter-1)+i][10] = tempCords[i][1];   // 'i' th Wall's 3rd y cord
-            FloorCoordsGlobal.wallCoords[counter-1+i][11] = zHeight;
+            FloorCoordsGlobal.wallCoords[prevWallCount+i][6] = tempCords[n][0];   // 'i' th Wall's 3rd x cord
+            FloorCoordsGlobal.wallCoords[prevWallCount+i][7] = tempCords[n][1];   // 'i' th Wall's 3rd y cord
+            FloorCoordsGlobal.wallCoords[prevWallCount+i][8] = zHeight;
+            Log.e("GP","[" +(prevWallCount+i)+" ]["+6+" = "+FloorCoordsGlobal.wallCoords[prevWallCount+i][6]+"[" +(12*(prevWallCount+i)+" ]["+7+" = "+FloorCoordsGlobal.wallCoords[prevWallCount+i][7]));
+            //Log.d("GP","[" +(12*(counter-1)+i)+" ]["+7+" = "+FloorCoordsGlobal.wallCoords[12*(counter-1)+i][7]);
+
+            FloorCoordsGlobal.wallCoords[prevWallCount+i][9] = tempCords[i][0];   // 'i' th Wall's 3rd x cord
+            FloorCoordsGlobal.wallCoords[prevWallCount+i][10] = tempCords[i][1];   // 'i' th Wall's 3rd y cord
+            FloorCoordsGlobal.wallCoords[prevWallCount+i][11] = zHeight;
+            Log.e("GP","[" +(prevWallCount+i)+" ]["+9+" = "+FloorCoordsGlobal.wallCoords[prevWallCount+i][9]+"[" +(prevWallCount+i)+" ]["+10+" = "+FloorCoordsGlobal.wallCoords[prevWallCount+i][10]);
+            //Log.d("GP","[" +(12*(counter-1)+i)+" ]["+10+" = "+FloorCoordsGlobal.wallCoords[12*(counter-1)+i][10]);
 
         }
+        prevWallCount += noOfWalls;
     }
 
     public void addTextContentOnScreen(String text)
